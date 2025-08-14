@@ -1,0 +1,44 @@
+name: Build & Push (CUDA12.1 Torch2.3.1)
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE_NAME: ma-sam2
+  IMAGE_TAG: cu121-v1
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & Push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
+          build-args: |
+            HF_TOKEN=${{ secrets.HF_TOKEN }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
