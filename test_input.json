@@ -1,0 +1,7 @@
+{
+  "input": {
+    "image_url": "https://example.com/person.jpg",
+    "background_url": "https://example.com/bg.jpg",
+    "output_name": "result.jpg"
+  }
+}
